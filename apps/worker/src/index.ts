@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { Worker } from 'bullmq';
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 
-const connection = new IORedis({
+const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: Number(process.env.REDIS_PORT) || 6379,
   maxRetriesPerRequest: null,
