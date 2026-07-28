@@ -55,6 +55,8 @@ model Domain {
   createdAt          DateTime            @default(now())
   organization       Organization        @relation(fields: [organizationId], references: [id])
   scanJobs           ScanJob[]
+
+  @@unique([organizationId, hostname])
 }
 
 enum ScanStatus {

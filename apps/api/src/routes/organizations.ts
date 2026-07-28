@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { organizationController } from '../controllers/organizationController';
 import { validateBody } from '../middleware/validate';
 import { authenticate, requireRole } from '../middleware/auth';
+import domainRoutes from './domains'; // BARU
 
 const router = Router();
 
@@ -14,8 +15,10 @@ router.post('/', authenticate, validateBody(createOrgSchema), organizationContro
 router.get(
   '/:orgId/members',
   authenticate,
-  requireRole('OWNER', 'ADMIN', 'MEMBER', 'VIEWER'), // semua role bisa lihat member
+  requireRole('OWNER', 'ADMIN', 'MEMBER', 'VIEWER'),
   organizationController.listMembers
 );
+
+router.use('/:orgId/domains', domainRoutes); // BARU — nested routing
 
 export default router;
