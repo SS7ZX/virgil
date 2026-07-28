@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  members   OrganizationMember[]
+  domains   Domain[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  memberships  OrganizationMember[]
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           Role         @default(MEMBER)
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+}
+
+model Domain {
+  id                 String              @id @default(uuid())
+  hostname           String
+  organizationId     String
+  verificationStatus VerificationStatus  @default(PENDING)
+  verificationToken  String              @default(uuid())
+  createdAt          DateTime            @default(now())
+  organization       Organization        @relation(fields: [organizationId], references: [id])
+  scanJobs           ScanJob[]
+}
+
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model ScanJob {
+  id          String     @id @default(uuid())
+  domainId    String
+  status      ScanStatus @default(QUEUED)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  domain      Domain     @relation(fields: [domainId], references: [id])
+}
